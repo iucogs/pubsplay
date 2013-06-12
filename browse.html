@@ -59,7 +59,6 @@
     </div>
   </div>
 
-
   <div class="container">
     <ul class="nav nav-tabs">
       <li class="active"><a href="#tab-all" data-toggle="tab"><i class="icon-home"></i> My Citations</a></li>
@@ -68,8 +67,33 @@
       <li><a href="#tab4" data-toggle="tab"><em><i class="icon-user"></i> SEP</em> : Artificial Intelligence</a></li>
       <li><a href="#tab-new" data-toggle="tab"><i class="icon-plus"></i></a></li>
     </ul>
-    <div class="tab-content">
+    <div class=""> <!-- TODO: fix tab-content class -->
       <div class="tab-pane active" id="tab-all">
+        <!-- COLLECTION HEADER -->
+        <h2>My Citations
+        <div class="btn-group pull-right">
+          <div class="btn-group dropdown">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-share-alt"></i></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Access</a></li>
+            </ul>
+          </div>
+          <div class="btn-group dropdown">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-download-alt"></i></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">BibTeX</a></li>
+              <li><a href="#">EndNote</a></li>
+              <li><a href="#">APA Plaintext</a></li>
+              <li><a href="#">MLA Plaintext</a></li>
+            </ul>
+          </div>
+          <a class="btn"><i class="icon-pencil"></i></a>
+          <a class="btn"><i class="icon-remove"></i></a>
+        </div>
+        </h2>
+
+        <!-- CITATIONS -->
         <table class="table table-hover table-condensed table-striped">
           <tbody>
             <tr>
@@ -194,10 +218,10 @@ Theiner, G., Allen, C. &amp; Goldstone, R. L. (2010). Recognizing group cognitio
 
 
    
-  <script type="text/overflow" src="http://code.jquery.com/jquery-latest.min.js"></script>
-  <script type="text/overflow" src="js/bootstrap.min.js"></script>
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
 
-  <script type="text/overflow">
+  <script>
     var pubs = pubs | {};
     pubs.citation_url = function(id) {
       return 'http://pubs2.cogs.indiana.edu/citation?IDs=' + id;
