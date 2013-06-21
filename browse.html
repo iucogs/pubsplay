@@ -115,7 +115,7 @@
        
 
 
-        <table class="table table-hover table-condensed table-striped">
+        <table id="citations-table" class="table table-hover table-condensed table-striped">
           <tbody>
             <tr>
               <td class="citation-actions"><input type="checkbox" /></td>
@@ -244,7 +244,7 @@ Theiner, G., Allen, C. &amp; Goldstone, R. L. (2010). Recognizing group cognitio
       <div class="row-fluid">
         
         <div class="span6">
-          <p>Author Names (Lastname, Firstname)c</p>
+          <p>Author Names (Lastname, Firstname)</p>
           <p><input type="text" class="span12"></p>
           <p><input type="text" class="span12"></p>
           <p><input type="text" class="span12"></p>
@@ -272,12 +272,55 @@ Theiner, G., Allen, C. &amp; Goldstone, R. L. (2010). Recognizing group cognitio
           <input class="field span12" type="text">
           Note:
           <input class="field span12" type="text">
-
           </p>
-
         </div>           
+       
         
+        <div class="row-fluid">
+          <div class="span6">
+            Publication type:
+              <a class="dropdown-toggle" id="dLabel" role="button" data-toggle="dropdown" data-target="#">Article <i class="icon-caret"></i> </a> 
+              <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                <li>&nbsp;Article <b class="icon-ok"></b></li>
+                <li>&nbsp;Book </li>
+                <li>&nbsp;Edited Book</li>
+                <li>&nbsp;Conference </li>
+                <li>&nbsp;In Book</li>
+                <li>&nbsp;In Proceedings</li>
+                <li>&nbsp;Proceedings</li>
+              </ul><br />
+              <form class="form-inline">
+                <div class="control-group">
+                  <label class="control-label" for="journal">Journal: </label>
+                  <div class="controls"><input type="text" id="journal"></div>
+                </div>
+                
+                <div class="control-group">
+                  <label class="control-label" for="volume">Volume: </label>
+                  <div class="controls"><input type="text" id="volume"></div>
+                </div>
+                
+                <div class="control-group">
+                  <label class="control-label" for="number">Number: </label>
+                  <div class="controls"><input type="text" id="number"></div>
+                </div>
+                
+                <div class="control-group">
+                  <label class="control-label" for="pages">Pages: </label>
+                  <div class="controls"><input type="text" id="pages"></div>
+                </div>
+                
+                <div class="control-group">
+                  <label class="control-label" for="month">Month: </label>
+                  <div class="controls"><input type="text" id="month"></div>
+                </div> 
+
+              </form>
+          </div>
+        </div>
+
       </div> 
+
     </div>
     <div class="modal-footer">
       <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
@@ -293,6 +336,9 @@ Theiner, G., Allen, C. &amp; Goldstone, R. L. (2010). Recognizing group cognitio
   <script src="js/bootstrap-modal.js"></script>
 
   <script>
+ 
+    $("citations-table").sortable({ items: "tr" });
+    
     var pubs = pubs | {};
     pubs.citation_url = function(id) {
       return 'http://pubs2.cogs.indiana.edu/citation?IDs=' + id;
