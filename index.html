@@ -103,7 +103,7 @@
 
         <div class="dropdown" align="left">
           Display format:     
-          <a class="dropdown-toggle" id="dLabel" role="button" data-toggle="dropdown" data-target="#">APA <i class="icon-caret"></i> </a> 
+          <a class="dropdown-toggle" id="dLabel" role="button" data-toggle="dropdown" data-target="#">APA <i class="icon-caret-alt"></i> </a> 
             <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
               <li>APA <b class="icon-ok"></b></li>
               <li>MLA</li>
@@ -277,7 +277,7 @@ Theiner, G., Allen, C. &amp; Goldstone, R. L. (2010). Recognizing group cognitio
        
         
         <div class="row-fluid">
-          <div class="span6">
+          <div class="span3">
             Publication type:
               <a class="dropdown-toggle" id="dLabel" role="button" data-toggle="dropdown" data-target="#">Article <i class="icon-caret"></i> </a> 
               <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
@@ -303,8 +303,12 @@ Theiner, G., Allen, C. &amp; Goldstone, R. L. (2010). Recognizing group cognitio
                 <div class="control-group">
                   <label class="control-label" for="number">Number: </label>
                   <div class="controls"><input type="text" id="number"></div>
-                </div>
-                
+                </div>      
+              </form>
+          </div>
+          <div class="span3">
+            <br /> 
+            <form class="form-inline">  
                 <div class="control-group">
                   <label class="control-label" for="pages">Pages: </label>
                   <div class="controls"><input type="text" id="pages"></div>
@@ -314,8 +318,7 @@ Theiner, G., Allen, C. &amp; Goldstone, R. L. (2010). Recognizing group cognitio
                   <label class="control-label" for="month">Month: </label>
                   <div class="controls"><input type="text" id="month"></div>
                 </div> 
-
-              </form>
+            </form>
           </div>
         </div>
 
@@ -337,7 +340,7 @@ Theiner, G., Allen, C. &amp; Goldstone, R. L. (2010). Recognizing group cognitio
   <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
   <script>
  
-    $("table").sortable({ items: "tr" });
+    $("#citations-table").sortable({ items: "tr" });
     
     var pubs = pubs | {};
     pubs.citation_url = function(id) {
