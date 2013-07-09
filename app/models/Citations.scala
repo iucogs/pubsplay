@@ -1,57 +1,45 @@
 package models
 
 import play.api.db.slick.Config.driver._
+import collection.mutable.Map
 
-class citation(citation_id: Int,    pubtype: String, abst: String,   keywords: String,     doi: String,
-               url: String,         address: String, annote: String,     booktitle: String,    chapter: String,
-               crossref: String,    edition: String, translator: String, howpublished: String, 
-               institution: String, journal: String, bibtex_key: String, month: String,        note: String,
-               number: String,      organization: String,                pages: String,        publisher: String,
-               location: String,    school: String,                      series: String,       title: String,
-               volume: String,      year: String,                        raw: String,          verified: Int,
-               format: String,      filename: String,                    submitter: String,    owner: String,
-               entryTime: Double,   last_modified: Double,               date_retreived: String)
+//case class Citation(citation_id: Int, citation_metadata: Map[String, String], abs: String, doi: String, url: String, booktitle: String, chapter: Int, edition: String,
+//               translator: String, how_published: String, journal: String, month: Int, number: Int, pages: String, publisher: String, location: String, title: String,
+//               volume: String, year: String, date_retreived: String)
+
+case class Citation(citation_id: Int, doi: String, url: String)
                
-object Citations extends Table[citation]("citations") {
+object Citations extends Table[Citation]("citations") {
   
   def citation_id = column[Int]("citation_id", O.PrimaryKey, O.AutoInc)
-  def pubtype = column[String]("pubtype")
-  def abst = column[String]("abst")
-  def keywords = column[String]("keywords")
+  def citation_metadata = Map(("submitter", column[String]("submitter")),
+                              ("owner", column[String]("owner")),
+                              ("entry_time", column[Double]("entry_time")),
+                              ("raw", column[String]("raw")),
+                              ("keywords", column[String]("keywords")),
+                              ("annotation", column[String]("annotation")),
+                              ("pubtype", column[String]("pubtype")),
+                              ("filename", column[String]("filename")),
+                              ("verified", column[Int]("verified")))
+  def abs = column[String]("abstract")
   def doi = column[String]("doi")
   def url = column[String]("url")
-  def address = column[String]("address")
-  def annote = column[String]("annote")
   def booktitle = column[String]("booktitle")
-  def chapter = column[String]("chapter")
-  def crossref = column[String]("crossref")
+  def chapter = column[Int]("chapter")
   def edition = column[String]("edition")
-  def howpublished = column[String]("howpublished")
-  def institution = column[String]("institution")
+  def translator = column[String]("translator")
+  def how_published = column[String]("howpublished")
   def journal = column[String]("journal")
-  def month = column[String]("month")
-  def note = column[String]("note")
+  def month = column[Int]("month")
+  def number = column[Int]("number")
+  def pages = column[String]("pages")
+  def publisher = column[String]("publisher")
   def location = column[String]("location")
-  def school = column[String]("school")
-  def series = column[String]("series")
   def title = column[String]("title")
   def volume = column[String]("volume")
   def year = column[String]("year")
-  def raw = column[String]("raw")
-  def verified = column[Int]("verified")
-  def format = column[String]("format")
-  def filename = column[String]("filename")
-  def submitter = column[String]("submitter")
-  def owner = column[String]("owner")
-  def entryTime = column[Double]("entryTime")
-  def last_modified = column[Double]("last_modified")
   def date_retreived = column[String]("date_retreived")
+  def * = citation_id ~ doi ~ url <> (Citation, Citation.unapply _)
   
-  
-  
-  def * = (citation_id ~ pubtype ~ abst ~ keywords ~ doi ~ url ~ 
-           address ~ annote ~ booktitle ~ chapter ~ crossref ~ edition ~ 
-           howpublished ~ institution ~ journal ~ month ~ note ~ location ~
-           school ~ series ~ title ~ volume ~ year ~ raw ~ verified ~ format ~
-           filename ~ submitter ~ owner ~ entryTime ~ last_modified ~ date_retreived) <> (citation, citation.unapply _)  
 }
+
