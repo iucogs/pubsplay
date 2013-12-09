@@ -1,4 +1,3 @@
-import models._
 import play.api.db.DB
 import play.api.GlobalSettings
 import scala.slick.driver.MySQLDriver.simple._
@@ -9,14 +8,13 @@ import play.api.Logger
 
 import play.api.Application
 import play.api.Play.current
+import models._
 
 object Global extends GlobalSettings {
   override def onStart(app: Application) {
-    implicit val application = app
-    lazy val database = Database.forDataSource(DB.getDataSource())
-    database.withSession {
-      implicit session: Session =>
-    }
+    lazy val database = Database.forDataSource(DB.getDataSource())    
   }
+
+
   
 }

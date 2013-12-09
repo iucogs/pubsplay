@@ -1,9 +1,9 @@
 package models
 
-//import play.api.db.slick.Config.driver._
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 import scala.slick.driver.MySQLDriver.simple._
-
-
+import scala.collection.mutable.MutableList
 
 case class Citation(citation_id: Int, pubtype: String, abs: String, keywords: String,      
                     doi: String, url: String, booktitle: String, chapter: String, edition: String, editor:       
@@ -35,11 +35,53 @@ object Citations extends Table[Citation]("citations") {
   def raw = column[String]("raw")
   def owner = column[String]("owner") 
 
-  def * = (citation_id ~ pubtype ~ abs ~ keywords ~ doi ~ url ~ booktitle ~ chapter ~   edition ~ editor ~ translator ~ journal ~ month ~ number ~ pages ~ publisher ~ location ~ title ~ volume ~ year ~ raw ~ owner).<>[Citation](Citation,Citation unapply _)
+  def * = (citation_id ~ pubtype ~ abs ~ keywords ~ doi ~ url ~ booktitle ~ chapter ~ edition ~ editor ~ translator ~ journal ~ month ~ number ~ pages ~ publisher ~ location ~ title ~ volume ~ year ~ raw ~ owner).<>[Citation](Citation,Citation unapply _)
 
-  def add(citation: Citation)(implicit session: Session) = {
+  def add(citation: Citation)(implicit session: Session) = 
     this.insert(citation)
-  } 
   
-
+    
+  def get_citation(id: Int)(implicit session:Session):Option[Citation] = 
+    Query(Citations).where(_.citation_id === id).firstOption
+    
+  def get_citation_json(citation: Option[Citation])(implicit session:Session):JsObject = {
+    if (citation.isEmpty) {
+      return Json.obj("error" -> "citation not found!")
+    } else {
+      val cit = citation.get
+      return Json.obj("citation_id" -> cit.citation_id,
+    		  		  "authors" -> get_citation_authors(cit),
+                      "pubtype" -> cit.pubtype,
+                      "abstract" -> cit.abs,
+                      "keywords" -> cit.keywords,
+                      "doi" -> cit.doi,
+                      "url" -> cit.url,
+                      "booktitle" -> cit.booktitle,
+                      "chapter" -> cit.chapter,
+                      "edition" -> cit.edition,
+                      "translator" -> cit.translator,
+                      "journal" -> cit.journal,
+                      "month" -> cit.month,
+                      "number" -> cit.number,
+                      "pages" -> cit.pages,
+                      "publisher" -> cit.publisher,
+                      "location" -> cit.location,
+                      "title" -> cit.title,
+                      "volume" -> cit.volume,
+                      "year" -> cit.year,
+                      "raw" -> cit.raw,
+                      "owner" -> cit.owner)
+    }
+  }
+  
+  
+  def get_citation_authors(citation: Citation)(implicit session:Session):JsValue = { 
+    val cit_id = citation.citation_id
+    val authors = for { author <- Authors
+                        entry <- author_of_table if entry.citation_id === cit_id && entry.author_id === author.author_id  } yield author.lastname ~ author.firstname
+    val authors_list = MutableList[String]()
+    authors.foreach {case (l, f) => authors_list += (l + ", " + f)}
+    return Json.toJson(authors_list)
+  }
+   
 }
