@@ -17,3 +17,6 @@ GET /citation/$citation_id<[0-9]+>.json						controllers.Application.getCitation
 GET /collection/$collection_id<[0-9]+>						controllers.Application.get_collection(collection_id: Int)
 GET /collection/$collection_id<[0-9]+>/citations			controllers.Application.get_collection_citations(collection_id: Int)
 GET /collection/$collection_id<[0-9]+>/citations.json		controllers.Application.get_collection_citations_json(collection_id: Int)
+
+# poc
+GET /sep													controllers.Application.get_sep

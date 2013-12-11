@@ -19,6 +19,16 @@ object Application extends Controller {
   def index = Action {
     Ok(views.html.index("Your new application is ready."))
   }
+  
+  // poc stuff
+  def get_sep = Action {
+    val json = database withSession {
+      val sep = Citations.get_sorted_sep
+      Json.toJson(sep)
+    }
+    Ok(json).as(JSON)
+  }
+  
   // Citation actions //
   
   def getCitations = Action {

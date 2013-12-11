@@ -1,6 +1,7 @@
 package models
 
 import play.api.libs.json._
+import play.api.libs.json.Json
 import play.api.libs.functional.syntax._
 import scala.slick.driver.MySQLDriver.simple._
 import scala.collection.mutable.MutableList
@@ -10,7 +11,20 @@ case class Citation(citation_id: Int, pubtype: String, abs: String, keywords: St
                     String, translator: String, journal: String, month: String, number: String, pages: 
                     String, publisher: String, location: String, title: String, volume: String, year: 
                     String, raw: String, owner: String)
-
+/*                    
+object Citation extends ((Int, String, String, String, String, String, String, String, String, String, String, String, String, String,
+    String, String, String, String, String, String, String, String) => Citation) {
+  implicit val citation_format = Json.format[Citation]
+  implicit val citation_reads = Json.reads[Citation]
+}
+*/
+                    
+object Citation extends Function22[Int, String, String, String, String, String, String, String, String, String, String, String, String, 
+                                   String, String, String, String, String, String, String, String, String, Citation] {
+  //implicit val citation_reads = Json.format[Citation]
+  
+}             
+                    
 object Citations extends Table[Citation]("citations") {
   def citation_id = column[Int]("citation_id", O.PrimaryKey, O.AutoInc)
   def pubtype = column[String]("pubtype")
@@ -74,14 +88,27 @@ object Citations extends Table[Citation]("citations") {
     }
   }
   
-  
   def get_citation_authors(citation: Citation)(implicit session:Session):JsValue = { 
     val cit_id = citation.citation_id
     val authors = for { author <- Authors
-                        entry <- author_of_table if entry.citation_id === cit_id && entry.author_id === author.author_id  } yield author.lastname ~ author.firstname
+                        entry  <- author_of_table if entry.citation_id === cit_id && entry.author_id === author.author_id  } yield author.lastname ~ author.firstname
     val authors_list = MutableList[String]()
     authors.foreach {case (l, f) => authors_list += (l + ", " + f)}
     return Json.toJson(authors_list)
   }
-   
+
+  def get_sorted_sep()(implicit session:Session):JsValue = {
+    val sep = for {citation <- Citations if citation.owner === "sep" } yield citation
+    
+    
+    val sorted = sep.list.sortBy(_.citation_id)
+    
+    //sorted.foreach{citation => println(citation)}
+    
+    
+    return Json.toJson("ok")
+  }
+
+
 }
+

@@ -13,7 +13,7 @@ object ApplicationBuild extends Build {
     "mysql" % "mysql-connector-java" % "5.1.24",
     "com.typesafe.slick" % "slick_2.10" % "1.0.0",
     "org.slf4j" % "slf4j-nop" % "1.6.4",
-    "com.typesafe.play" %% "play-slick" % "0.3.3"
+    "com.typesafe.play" %% "play-slick" % "0.5.0.8"
   )
 
 
