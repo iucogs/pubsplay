@@ -19,4 +19,4 @@ GET /collection/$collection_id<[0-9]+>/citations			controllers.Application.get_c
 GET /collection/$collection_id<[0-9]+>/citations.json		controllers.Application.get_collection_citations_json(collection_id: Int)
 
 # poc
-GET /sep													controllers.Application.get_sep
+#GET /sep													controllers.Application.get_sep

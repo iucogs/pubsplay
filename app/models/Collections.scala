@@ -17,13 +17,12 @@ object Collections extends Table[Collection]("collections") {
   def get_collection(id: Int)(implicit session:Session):Option[Collection] = 
     Query(Collections).where(_.collection_id === id).firstOption
 
-  def get_collection_citations(collection: Option[Collection])(implicit session:Session):JsObject = {
-    if (collection.isEmpty) {
-      return Json.obj("error" -> "Collection not found.")
-    } else {
-      val coll_id = collection.get.collection_id
-      val citations_list = for { col <- member_of_collection_table if col.collection_id === coll_id } yield col.citation_id
-      return Json.obj("citations" -> citations_list.list)
+  def get_collection_citations(collection: Option[Collection])(implicit session:Session):List[Citation] = {
+      
+	  val coll_id = collection.get.collection_id
+      val citations_list = for { col <- member_of_collection_table
+                                 citation <- Citations if col.collection_id === coll_id } yield citation
+      return citations_list.list
     }
-  }
+  
 }

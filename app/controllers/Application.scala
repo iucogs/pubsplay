@@ -21,14 +21,14 @@ object Application extends Controller {
   }
   
   // poc stuff
-  def get_sep = Action {
+ /* def get_sep = Action {
     val json = database withSession {
       val sep = Citations.get_sorted_sep
       Json.toJson(sep)
     }
     Ok(json).as(JSON)
   }
-  
+  */
   // Citation actions //
   
   def getCitations = Action {
@@ -50,7 +50,8 @@ object Application extends Controller {
   def getCitationJson(citation_id:Int) = Action {
     val json = database withSession {
       val cit = Citations.get_citation(citation_id)
-      val cit_json = Citations.get_citation_json(cit)
+      val citation_with_auth = Citation_With_Authors.get_citation_with_authors(cit)
+      val cit_json = Citation_With_Authors.get_citation_json(citation_with_auth)
       Json.toJson(cit_json)
     }
     Ok(json).as(JSON)
@@ -77,11 +78,9 @@ object Application extends Controller {
   def get_collection_citations_json(collection_id: Int) = Action {
     val json = database withSession{
       val coll = Collections.get_collection(collection_id)
-      val coll_citations = Collections.get_collection_citations(coll).value
-      val coll_list = coll_citations.get("citations").get.as[List[Int]]
-      val citations = MutableList[JsObject]()
-      coll_list.foreach(citation => citations += Citations.get_citation_json(Citations.get_citation(citation)))
-      println(coll_list.toString)
+      val coll_citations = Collections.get_collection_citations(coll)
+      val citations = MutableList[JsValue]()
+      coll_citations.foreach(citation => citations += Citation_With_Authors.get_citation_json(Citation_With_Authors.get_citation_with_authors(Option(citation))))          
       Json.toJson(citations)
     }
     Ok(json).as(JSON)

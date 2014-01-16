@@ -10,21 +10,16 @@ case class Citation(citation_id: Int, pubtype: String, abs: String, keywords: St
                     doi: String, url: String, booktitle: String, chapter: String, edition: String, editor:       
                     String, translator: String, journal: String, month: String, number: String, pages: 
                     String, publisher: String, location: String, title: String, volume: String, year: 
-                    String, raw: String, owner: String)
-/*                    
-object Citation extends ((Int, String, String, String, String, String, String, String, String, String, String, String, String, String,
-    String, String, String, String, String, String, String, String) => Citation) {
+                    String)
+
+               
+object Citation extends Function20[Int, String, String, String, String, String, String, String, String, String, String, String, String, 
+                                   String, String, String, String, String, String, String, Citation] {
   implicit val citation_format = Json.format[Citation]
   implicit val citation_reads = Json.reads[Citation]
-}
-*/
-                    
-object Citation extends Function22[Int, String, String, String, String, String, String, String, String, String, String, String, String, 
-                                   String, String, String, String, String, String, String, String, String, Citation] {
-  //implicit val citation_reads = Json.format[Citation]
-  
+  implicit val citation_writes = Json.writes[Citation]
 }             
-                    
+
 object Citations extends Table[Citation]("citations") {
   def citation_id = column[Int]("citation_id", O.PrimaryKey, O.AutoInc)
   def pubtype = column[String]("pubtype")
@@ -46,65 +41,30 @@ object Citations extends Table[Citation]("citations") {
   def title = column[String]("title")
   def volume = column[String]("volume")
   def year = column[String]("year")
-  def raw = column[String]("raw")
-  def owner = column[String]("owner") 
-
-  def * = (citation_id ~ pubtype ~ abs ~ keywords ~ doi ~ url ~ booktitle ~ chapter ~ edition ~ editor ~ translator ~ journal ~ month ~ number ~ pages ~ publisher ~ location ~ title ~ volume ~ year ~ raw ~ owner).<>[Citation](Citation,Citation unapply _)
+  
+  def * = (citation_id ~ pubtype ~ abs ~ keywords ~ doi ~ url ~ booktitle ~ chapter ~ edition ~ editor ~ translator ~ journal ~ month ~ number ~ pages ~ publisher ~ location ~ title ~ volume ~ year).<>[Citation](Citation,Citation unapply _)
 
   def add(citation: Citation)(implicit session: Session) = 
     this.insert(citation)
-  
-    
+   
   def get_citation(id: Int)(implicit session:Session):Option[Citation] = 
     Query(Citations).where(_.citation_id === id).firstOption
-    
-  def get_citation_json(citation: Option[Citation])(implicit session:Session):JsObject = {
-    if (citation.isEmpty) {
-      return Json.obj("error" -> "citation not found!")
-    } else {
-      val cit = citation.get
-      return Json.obj("citation_id" -> cit.citation_id,
-    		  		  "authors" -> get_citation_authors(cit),
-                      "pubtype" -> cit.pubtype,
-                      "abstract" -> cit.abs,
-                      "keywords" -> cit.keywords,
-                      "doi" -> cit.doi,
-                      "url" -> cit.url,
-                      "booktitle" -> cit.booktitle,
-                      "chapter" -> cit.chapter,
-                      "edition" -> cit.edition,
-                      "translator" -> cit.translator,
-                      "journal" -> cit.journal,
-                      "month" -> cit.month,
-                      "number" -> cit.number,
-                      "pages" -> cit.pages,
-                      "publisher" -> cit.publisher,
-                      "location" -> cit.location,
-                      "title" -> cit.title,
-                      "volume" -> cit.volume,
-                      "year" -> cit.year,
-                      "raw" -> cit.raw,
-                      "owner" -> cit.owner)
-    }
-  }
-  
-  def get_citation_authors(citation: Citation)(implicit session:Session):JsValue = { 
+        
+  def get_citation_authors(citation: Citation)(implicit session:Session):MutableList[String] = { 
     val cit_id = citation.citation_id
-    val authors = for { author <- Authors
-                        entry  <- author_of_table if entry.citation_id === cit_id && entry.author_id === author.author_id  } yield author.lastname ~ author.firstname
     val authors_list = MutableList[String]()
-    authors.foreach {case (l, f) => authors_list += (l + ", " + f)}
-    return Json.toJson(authors_list)
+    val authors = for { author <- Authors
+                        entry  <- Authors_Of if entry.citation_id === cit_id && entry.author_id === author.author_id  } yield author.lastname ~ author.firstname ~ entry.position_num
+                        
+    authors.sortBy(a => a._3 < a._3)
+    authors.foreach {case (l, f, p) => authors_list += (l + ", " + f)}
+    
+    return authors_list
   }
 
   def get_sorted_sep()(implicit session:Session):JsValue = {
-    val sep = for {citation <- Citations if citation.owner === "sep" } yield citation
-    
-    
-    val sorted = sep.list.sortBy(_.citation_id)
-    
-    //sorted.foreach{citation => println(citation)}
-    
+    val sep = for {citation <- Citations
+                   citation_meta <- Citations_Meta if citation_meta.citation_id === citation.citation_id && citation_meta.owner === "sep" } yield citation
     
     return Json.toJson("ok")
   }
