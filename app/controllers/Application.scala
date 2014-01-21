@@ -21,42 +21,25 @@ object Application extends Controller {
   }
   
   // poc stuff
- /* def get_sep = Action {
+  def get_sep = Action {
     val json = database withSession {
-      val sep = Citations.get_sorted_sep
-      Json.toJson(sep)
+      val sep = Citation.get_SEP()
+      val bar = sep.map(x => x.toJson())
+      Json.toJson(bar)
     }
     Ok(json).as(JSON)
   }
-  */
+
   // Citation actions //
   
-  def getCitations = Action {
+  def get_citation_json(citation_id:Int) = Action {
     val json = database withSession {
-      val citations = for (citation <- Citations) yield citation.title.toString
-      Json.toJson(citations.list)
+      val citation = Citation.citation_factory(citation_id)
+      Json.toJson(citation.toJson())
     }
     Ok(json).as(JSON)
   }
-  
-  def getCitation(citation_id: Int) = Action {
-    val json = database withSession{
-      val cit = Citations.get_citation(citation_id)
-      Json.toJson(cit.toString)
-    }
-    Ok(json).as(JSON)
-  }
-  
-  def getCitationJson(citation_id:Int) = Action {
-    val json = database withSession {
-      val cit = Citations.get_citation(citation_id)
-      val citation_with_auth = Citation_With_Authors.get_citation_with_authors(cit)
-      val cit_json = Citation_With_Authors.get_citation_json(citation_with_auth)
-      Json.toJson(cit_json)
-    }
-    Ok(json).as(JSON)
-  }
-  
+     
   // Collection actions
   def get_collection(collection_id: Int) = Action {
     val json = database withSession{
@@ -70,20 +53,9 @@ object Application extends Controller {
     val json = database withSession{
       val coll = Collections.get_collection(collection_id)
       val coll_citations = Collections.get_collection_citations(coll)
-      Json.toJson(coll_citations)
+      Json.toJson(coll_citations.map(citation => citation.toJson()))
     }
     Ok(json).as(JSON)
   }
-  
-  def get_collection_citations_json(collection_id: Int) = Action {
-    val json = database withSession{
-      val coll = Collections.get_collection(collection_id)
-      val coll_citations = Collections.get_collection_citations(coll)
-      val citations = MutableList[JsValue]()
-      coll_citations.foreach(citation => citations += Citation_With_Authors.get_citation_json(Citation_With_Authors.get_citation_with_authors(Option(citation))))          
-      Json.toJson(citations)
-    }
-    Ok(json).as(JSON)
-  }
-  
+
 }

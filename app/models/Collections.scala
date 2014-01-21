@@ -18,11 +18,9 @@ object Collections extends Table[Collection]("collections") {
     Query(Collections).where(_.collection_id === id).firstOption
 
   def get_collection_citations(collection: Option[Collection])(implicit session:Session):List[Citation] = {
-      
-	  val coll_id = collection.get.collection_id
-      val citations_list = for { col <- member_of_collection_table
-                                 citation <- Citations if col.collection_id === coll_id } yield citation
-      return citations_list.list
-    }
-  
+    val citation_ids = for { col <- member_of_collection_table if col.collection_id === collection.get.collection_id } yield col.citation_id
+    return citation_ids.list.map(citation_id => Citation.citation_factory(citation_id))
+  }
+    
+   
 }
