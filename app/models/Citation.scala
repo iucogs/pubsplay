@@ -5,8 +5,7 @@ import play.api.libs.json.Json
 import play.api.libs.functional.syntax._
 import scala.slick.driver.MySQLDriver.simple._
 import models._
-import scala.collection.mutable.MutableList
-
+import scala.collection.parallel.immutable._
 
 case class Citation(citation_data: Citation_Data, citation_meta: Citation_Meta, authors: List[String]) {
   val citation_id: Int = citation_data.citation_id
@@ -82,6 +81,7 @@ object Citation extends Function3[Citation_Data, Citation_Meta, List[String], Ci
   def get_SEP()(implicit session:Session):List[Citation] = {
     val sep_ids = for {citation <- Citations_Meta if citation.owner === "sep" } yield citation.citation_id
     val citations = sep_ids.list.map(citation_id => this.citation_factory(citation_id))
+    
     return citations
     //return citations.sortWith(_.authors.toString < _.authors.toString)
   }

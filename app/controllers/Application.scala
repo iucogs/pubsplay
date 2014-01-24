@@ -9,8 +9,7 @@ import models._
 import play.api.db._
 import play.api.Play.current
 import Database.threadLocalSession
-import scala.collection.mutable.MutableList
-
+import play.api.libs.iteratee.Enumerator
 
 object Application extends Controller {
   
@@ -21,6 +20,20 @@ object Application extends Controller {
   }
   
   // poc stuff
+  /*
+  def get_sep = Action {
+    val json = database withSession {
+      val sep = Citation.get_SEP().map(x => x.toJson)
+      sep.toString.getBytes 
+    }
+    
+    SimpleResult  (
+        header = ResponseHeader(200),
+        body = Enumerator(json)
+        )
+  }
+  
+ */
   def get_sep = Action {
     val json = database withSession {
       val sep = Citation.get_SEP()
