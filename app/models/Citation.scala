@@ -63,23 +63,41 @@ case class Citation(citation_data: Citation_Data, citation_meta: Citation_Meta, 
 }
 
 object Citation extends Function3[Citation_Data, Citation_Meta, List[String], Citation] {
-  //implicit val citation_format = Json.format[Citation]
-  //implicit val citation_reads = Json.reads[Citation]
-  //implicit val citation_writes = Json.writes[Citation]
    
   def citation_factory(citation_id: Int)(implicit session:Session):Citation = {
-    val citation_data = Citations_Data.get_citation(citation_id).get
-    val citation_meta = Citations_Meta.get_citation_meta(citation_id)
-    val authors = Authors.get_citation_authors(citation_data)
-    return new Citation(citation_data, citation_meta, authors)
+    val citation_data = Citation_Data.get_citation(citation_id)
+    val citation_meta = Citation_Meta.get_citation_meta(citation_id)
+    val auths = Authors.get_citation_authors(citation_data)
+    return new Citation(citation_data, citation_meta, auths)
   }
 
   def get_citation_json(citation: Citation)(implicit session:Session):JsObject = {
     return citation.toJson()
   }
   
+       				     										
+  def get_citation(id: Int)(implicit session:Session): Citation = {
+   
+    // citation query, compilation, and returned objects
+    def citation_query (id: Column[Int]) = for { cit_data <- Citation_Data.citation_data_query
+                                                 cit_meta <- Citation_Meta.citation_meta_query if cit_data.citation_id === id &&
+   	     											                                              cit_meta.citation_id === id } yield (cit_data, cit_meta)  				   
+    val compiled_citation_query = Compiled(citation_query _)
+    val citation = compiled_citation_query(id).run
+    val citation_data = citation.head._1
+    val citation_meta = citation.head._2
+    
+    // Author query, compilation and returned list.
+    def auths_query (id: Column[Int]) = for {author <- Authors.authors_query
+      				                         entry <- Author_Of.author_of_query if entry.citation_id === id && entry.author_id === author.author_id } yield (author.lastname, author.firstname, entry.position_num)
+    val compiled_auths_query = Compiled(auths_query _)
+    val auths = compiled_auths_query(id).run.toList
+      				 
+    return Citation(citation_data, citation_meta, auths.map{case (lastname, firstname, position) => (lastname + ", " + firstname)})  				 
+  }
+  
   def get_SEP()(implicit session:Session):List[Citation] = {
-    val sep_ids = for {citation <- Citations_Meta if citation.owner === "sep" } yield citation.citation_id
+    val sep_ids = for {citation <- Citation_Meta.citation_meta_query if citation.owner === "sep" } yield citation.citation_id
     val citations = sep_ids.list.map(citation_id => this.citation_factory(citation_id))
     
     return citations

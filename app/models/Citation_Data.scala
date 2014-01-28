@@ -12,15 +12,7 @@ case class Citation_Data(citation_id: Int, pubtype: String, abs: String,
                     String, publisher: String, location: String, title: String, volume: String, year: 
                     String)
 
-               
-object Citation_Data extends Function19[Int, String, String, String, String, String, String, String, String, String, String, String, String, 
-                                   String, String, String, String, String, String, Citation_Data] {
-  implicit val citation_format = Json.format[Citation_Data]
-  implicit val citation_reads = Json.reads[Citation_Data]
-  implicit val citation_writes = Json.writes[Citation_Data]
-}             
-
-object Citations_Data extends Table[Citation_Data]("citations") {
+class Citations_Data(tag: Tag) extends Table[Citation_Data](tag, "citations") {
   def citation_id = column[Int]("citation_id", O.PrimaryKey, O.AutoInc)
   def pubtype = column[String]("pubtype")
   def abs = column[String]("abstract")
@@ -41,13 +33,25 @@ object Citations_Data extends Table[Citation_Data]("citations") {
   def volume = column[String]("volume")
   def year = column[String]("year")
   
-  def * = (citation_id ~ pubtype ~ abs ~ doi ~ url ~ booktitle ~ chapter ~ edition ~ editor ~ translator ~ journal ~ month ~ number ~ pages ~ publisher ~ location ~ title ~ volume ~ year).<>[Citation_Data](Citation_Data,Citation_Data unapply _)
-
-  def add(citation: Citation_Data)(implicit session: Session) = 
-    this.insert(citation)
-   
-  def get_citation(id: Int)(implicit session:Session):Option[Citation_Data] = 
-    Query(Citations_Data).where(_.citation_id === id).firstOption
-
+  def * = (citation_id, pubtype, abs, doi, url, booktitle, chapter, edition, editor, translator, journal, month, number, pages, publisher, location, title, volume, year).<>(Citation_Data.tupled, Citation_Data.unapply)
 }
 
+object Citation_Data extends Function19[Int, String, String, String, String, String, String, String, String, String, String, String, String, 
+                                   String, String, String, String, String, String, Citation_Data] {
+  implicit val citation_format = Json.format[Citation_Data]
+  implicit val citation_reads = Json.reads[Citation_Data]
+  implicit val citation_writes = Json.writes[Citation_Data]
+ 
+  val citation_data_query = TableQuery[Citations_Data]
+  
+  def add(citation: Citation_Data)(implicit session: Session) = 
+    citation_data_query.insert(citation)
+   
+  def get_citation(id: Int)(implicit session:Session):Citation_Data = {
+    def citation_query(id: Column[Int]) = for {citation <- citation_data_query if citation.citation_id === id} yield citation
+    val compiled_citation_query = Compiled(citation_query _)
+    val citation = compiled_citation_query(id).run
+    
+    return citation.head
+  }
+}    

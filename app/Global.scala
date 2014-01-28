@@ -1,7 +1,7 @@
 import play.api.db.DB
 import play.api.GlobalSettings
 import scala.slick.driver.MySQLDriver.simple._
-import Database.threadLocalSession
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 import play.api.Logger
 
@@ -14,7 +14,4 @@ object Global extends GlobalSettings {
   override def onStart(app: Application) {
     lazy val database = Database.forDataSource(DB.getDataSource())    
   }
-
-
-  
 }

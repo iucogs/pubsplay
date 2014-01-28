@@ -11,6 +11,8 @@ GET     /assets/*file               			controllers.Assets.at(path="/public", fil
 # Citations section
 
 GET /citation/$citation_id<[0-9]+>.json						controllers.Application.get_citation_json(citation_id: Int)
+GET /citation/$citation_id<[0-9]+>							controllers.Application.get_citation(citation_id: Int)
+
 
 # Collections section
 GET /collection/$collection_id<[0-9]+>						controllers.Application.get_collection(collection_id: Int)
