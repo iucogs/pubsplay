@@ -34,9 +34,9 @@ object Application extends Controller {
   }
   
  */
-  def get_sep = Action {
+  def get_citations_by_owner(owner: String) = Action {
     val json = database withDynSession {
-      val sep = Citation.get_SEP()
+      val sep = Citation.get_citations_by_owner(owner)
       val bar = sep.map(x => x.toJson())
       Json.toJson(bar)
     }

@@ -12,11 +12,8 @@ GET     /assets/*file               			controllers.Assets.at(path="/public", fil
 
 GET /citation/$citation_id<[0-9]+>.json						controllers.Application.get_citation_json(citation_id: Int)
 GET /citation/$citation_id<[0-9]+>							controllers.Application.get_citation(citation_id: Int)
-
+GET /citation/owner/$owner<[a-z]+>							controllers.Application.get_citations_by_owner(owner: String)
 
 # Collections section
 GET /collection/$collection_id<[0-9]+>						controllers.Application.get_collection(collection_id: Int)
 GET /collection/$collection_id<[0-9]+>/citations			controllers.Application.get_collection_citations(collection_id: Int)
-
-# poc
-GET /sep													controllers.Application.get_sep

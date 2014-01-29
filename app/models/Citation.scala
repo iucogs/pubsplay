@@ -70,6 +70,11 @@ object Citation extends Function3[Citation_Data, Citation_Meta, List[String], Ci
     val auths = Authors.get_citation_authors(citation_data)
     return new Citation(citation_data, citation_meta, auths)
   }
+  
+  def citation_factory(citation_data: Citation_Data, citation_meta: Citation_Meta)(implicit session: Session): Citation = {
+    val auths = Authors.get_citation_authors(citation_data)
+    return new Citation(citation_data, citation_meta, auths)
+  }
 
   def get_citation_json(citation: Citation)(implicit session:Session):JsObject = {
     return citation.toJson()
@@ -96,9 +101,12 @@ object Citation extends Function3[Citation_Data, Citation_Meta, List[String], Ci
     return Citation(citation_data, citation_meta, auths.map{case (lastname, firstname, position) => (lastname + ", " + firstname)})  				 
   }
   
-  def get_SEP()(implicit session:Session):List[Citation] = {
-    val sep_ids = for {citation <- Citation_Meta.citation_meta_query if citation.owner === "sep" } yield citation.citation_id
-    val citations = sep_ids.list.map(citation_id => this.citation_factory(citation_id))
+  def get_citations_by_owner(owner: String)(implicit session:Session):List[Citation] = {
+    val citation_parts = for { citation_data <- Citation_Data.citation_data_query
+      		     		       citation_meta <- Citation_Meta.citation_meta_query if citation_meta.owner === owner && 
+                                                                                     citation_meta.citation_id === citation_data.citation_id } yield (citation_data, citation_meta)
+    
+    val citations = for {citation_part <- citation_parts.list} yield citation_factory(citation_part._1, citation_part._2)
     
     return citations
     //return citations.sortWith(_.authors.toString < _.authors.toString)
