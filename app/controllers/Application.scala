@@ -21,10 +21,10 @@ object Application extends Controller {
   
   // poc stuff
   /*
-  def get_sep = Action {
-    val json = database withSession {
-      val sep = Citation.get_SEP().map(x => x.toJson)
-      sep.toString.getBytes 
+  def get_citations_by_owner(owner:String) = Action {
+    val json = database withDynSession {
+      val sep = Citation.get_citations_by_owner(owner).map(x => x.toJson)
+      sep.toString.getBytes() 
     }
     
     SimpleResult  (
@@ -36,7 +36,8 @@ object Application extends Controller {
  */
   def get_citations_by_owner(owner: String) = Action {
     val json = database withDynSession {
-      val sep = Citation.get_citations_by_owner(owner)
+      //val sep = Citation.get_citations_by_owner(owner)
+      val sep = Citation.citation_all(owner)
       val bar = sep.map(x => x.toJson())
       Json.toJson(bar)
     }
@@ -55,7 +56,7 @@ object Application extends Controller {
   
   def get_citation(citation_id: Int) = Action {
     def ret = database withDynSession {
-      val citation = Citation.get_citation(citation_id)
+      val citation = Citation.citation_factory(citation_id)
       citation.toString.getBytes
     } 
     SimpleResult ( 

@@ -71,36 +71,65 @@ object Citation extends Function3[Citation_Data, Citation_Meta, List[String], Ci
     return new Citation(citation_data, citation_meta, auths)
   }
   
-  def citation_factory(citation_data: Citation_Data, citation_meta: Citation_Meta)(implicit session: Session): Citation = {
-    val auths = Authors.get_citation_authors(citation_data)
-    return new Citation(citation_data, citation_meta, auths)
+  def citation_factory(citation_data: Citation_Data, citation_meta: Citation_Meta, authors: List[String])(implicit session: Session): Citation = {
+    return new Citation(citation_data, citation_meta, authors)
   }
-
+  
+  
+  
+  def citation_all(owner: String)(implicit session: Session): List[Citation] = { 
+    /* SELECT citations.citation_id, 
+       GROUP_CONCAT(authors.lastname, ', ', authors.firstname
+                    ORDER BY author_of.position_num, authors.lastname, authors.firstname
+                    SEPARATOR ", ") AS author_string,
+       citations.year
+FROM citations
+INNER JOIN author_of ON citations.citation_id = author_of.citation_id
+INNER JOIN authors ON author_of.author_id = authors.author_id
+GROUP BY author_of.citation_id
+ORDER BY author_string, year;
+      */
+     
+    //val group_concat = SimpleFunction.binary[String, String, String]("GROUP_CONCAT")
+    // Peter and Mary is this thing ugly. Saints preserve us! 
+    val group_concat = SimpleExpression.ternary[String, String, Int, String] { (lastname, firstname, pos, qb) =>
+      qb.sqlBuilder += "GROUP_CONCAT("
+      qb.expr(lastname)
+      qb.sqlBuilder += ", ', ', "
+      qb.expr(firstname)
+      qb.sqlBuilder += " ORDER BY "
+      qb.expr(pos)
+      qb.sqlBuilder += " ,"
+      qb.expr(lastname)
+      qb.sqlBuilder += " ,"
+      qb.expr(firstname)
+      qb.sqlBuilder += " SEPARATOR \", \"), "
+    }
+    
+    println(group_concat.toString)
+    
+    val all_query = for { citation_meta <- Citation_Meta.citation_meta_query  
+                          citation_data <- Citation_Data.citation_data_query  
+                          entry <- Author_Of.author_of_query 
+                          author <- Authors.authors_query
+                          if citation_meta.owner === owner && citation_data.citation_id === citation_meta.citation_id &&  
+                          entry.citation_id === citation_meta.citation_id && author.author_id === entry.author_id } yield (citation_meta, group_concat(author.lastname, author.firstname, entry.position_num), citation_data)
+    
+    
+    all_query.groupBy(_._1.citation_id)
+    all_query.sortBy(_._2)
+    
+    println("die grosse query\n")                      
+    println(all_query.selectStatement)
+    val citations = for {citation <- all_query.list} yield citation_factory(citation._3, citation._1, List[String](citation._2))
+    
+    return citations       
+  }                        
+  
   def get_citation_json(citation: Citation)(implicit session:Session):JsObject = {
     return citation.toJson()
   }
-  
-       				     										
-  def get_citation(id: Int)(implicit session:Session): Citation = {
-   
-    // citation query, compilation, and returned objects
-    def citation_query (id: Column[Int]) = for { cit_data <- Citation_Data.citation_data_query
-                                                 cit_meta <- Citation_Meta.citation_meta_query if cit_data.citation_id === id &&
-   	     											                                              cit_meta.citation_id === id } yield (cit_data, cit_meta)  				   
-    val compiled_citation_query = Compiled(citation_query _)
-    val citation = compiled_citation_query(id).run
-    val citation_data = citation.head._1
-    val citation_meta = citation.head._2
-    
-    // Author query, compilation and returned list.
-    def auths_query (id: Column[Int]) = for {author <- Authors.authors_query
-      				                         entry <- Author_Of.author_of_query if entry.citation_id === id && entry.author_id === author.author_id } yield (author.lastname, author.firstname, entry.position_num)
-    val compiled_auths_query = Compiled(auths_query _)
-    val auths = compiled_auths_query(id).run.toList
-      				 
-    return Citation(citation_data, citation_meta, auths.map{case (lastname, firstname, position) => (lastname + ", " + firstname)})  				 
-  }
-  
+ /* 
   def get_citations_by_owner(owner: String)(implicit session:Session):List[Citation] = {
     val citation_parts = for { citation_data <- Citation_Data.citation_data_query
       		     		       citation_meta <- Citation_Meta.citation_meta_query if citation_meta.owner === owner && 
@@ -108,9 +137,9 @@ object Citation extends Function3[Citation_Data, Citation_Meta, List[String], Ci
     
     val citations = for {citation_part <- citation_parts.list} yield citation_factory(citation_part._1, citation_part._2)
     
-    return citations
-    //return citations.sortWith(_.authors.toString < _.authors.toString)
+    //return citations
+    return citations.sortWith(_.authors.toString < _.authors.toString)
   }
-
+*/
 }
      

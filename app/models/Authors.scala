@@ -22,7 +22,7 @@ object Authors /*extends Function4[Int, String, String, Int, Author]*/ {
         
     val compiled_auths_query = Compiled(auths_query _)
     val auths = compiled_auths_query(citation.citation_id).run.toList
-    //authors.sortBy(a => a._3 < a._3)
+    auths.sortBy(a => a._3 < a._3)
 
     return auths.map{case (lastname, firstname, position) => (lastname + ", " + firstname)}
   }
